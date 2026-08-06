@@ -1,8 +1,8 @@
-name: Topic-wise solved-problem sync
+name: DSA solution upsert
 
 on:
   schedule:
-    - cron: "45 18 * * *" # 12:15 AM IST
+    - cron: "*/5 * * * *" # GitHub's minimum schedule interval
   workflow_dispatch:
 
 permissions:
@@ -21,24 +21,23 @@ jobs:
       TRACKER_EMAIL: ${{ secrets.TRACKER_EMAIL }}
       TRACKER_PASSWORD: ${{ secrets.TRACKER_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Export solved problems
         run: python scripts/sync_solutions.py
 
-      - name: Commit new solves
+      - name: Commit changed solutions
         run: |
-          git add topics
-          git add -A solutions
+          git add -A -- .dsa-sync-index.json topics
           if git diff --cached --quiet; then
-            echo "No new solved problems to commit."
+            echo "No new or updated solutions to commit."
             exit 0
           fi
           git config user.name "Tushar Goel"
           git config user.email "168968951+Tushargg1@users.noreply.github.com"
-          git commit -m "Organize DSA problems by topic"
+          git commit -m "Upsert DSA solutions by topic"
           git push

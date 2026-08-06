@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "DSA Solution Capture",
+  "version": "1.0.0",
+  "description": "Captures accepted DSA solutions and sends them to a configured API.",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": [
+    "https://leetcode.com/problems/*",
+    "https://www.leetcode.com/problems/*",
+    "https://codeforces.com/problemset/problem/*",
+    "https://codeforces.com/contest/*/problem/*",
+    "https://www.geeksforgeeks.org/problems/*",
+    "https://practice.geeksforgeeks.org/problems/*",
+    "http://localhost:8080/*",
+    "https://dsa-estimators-1.onrender.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "DSA Solution Capture",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://www.leetcode.com/problems/*",
+        "https://codeforces.com/problemset/problem/*",
+        "https://codeforces.com/contest/*/problem/*",
+        "https://www.geeksforgeeks.org/problems/*",
+        "https://practice.geeksforgeeks.org/problems/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

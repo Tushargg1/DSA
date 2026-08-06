@@ -1,29 +1,44 @@
-# DSA Solutions by Topic
+# Topic-wise DSA Solution Archive
 
-Accepted problems tracked by DSA Evaluator are organized as:
+Every distinct accepted problem is stored once at:
 
 ```text
 topics/<topic>/<problem>/README.md
 ```
 
-Each metadata file includes the problem link, platform, difficulty, tags, and first-accepted time. The sync uses the same pattern catalog as DSA Evaluator and runs daily at **12:15 AM IST**.
+## Create-or-update behavior
 
-## Source code capture
+The `DSA solution upsert` workflow runs approximately every five minutes:
 
-LeetCode’s public submission feed does **not** expose private submitted source code. Therefore the scheduled metadata workflow cannot recover code for older submissions.
+1. Logs in to DSA Evaluator with encrypted Actions secrets.
+2. Reads every first-time accepted submission and every browser source capture.
+3. Uses `platform + problem ID` as the stable identity.
+4. Creates a missing problem file.
+5. Updates the same file when metadata, topic, language, or source changes.
+6. Makes no commit when the generated content is unchanged.
+7. Moves the file and removes the old generated path if its topic changes.
 
-Actual code must be captured in the browser when a submission becomes accepted. DSA Evaluator already includes a Chrome/Edge extension for this, but its GitHub export requires the backend GitHub App configuration shown on the app’s GitHub page. After that setup:
+The `.dsa-sync-index.json` manifest keeps paths stable and prevents duplicates.
 
-1. Connect the `Tushargg1/DSA` repository in DSA Evaluator.
-2. Generate an extension token.
-3. Load the tracker repository’s `extension/` directory using Chrome/Edge **Load unpacked**.
-4. Save the production API URL and extension token in the extension.
-5. Submit on LeetCode; accepted source is captured and exported under its DSA pattern.
+## Capturing actual source code
 
-Never paste a GitHub private key, tracker password, extension token, or browser cookie into this repository.
+Public LeetCode/Codeforces/GFG submission feeds do not expose private source. Install this repository's `extension/` directory as an unpacked Chrome/Edge extension. In DSA Evaluator's **GitHub** page:
 
-## Workflow configuration
+1. Click **Generate capture token**.
+2. Copy the displayed production API URL and token into the extension.
+3. Keep the extension enabled when submitting.
 
-The GitHub Actions repository secrets `TRACKER_EMAIL` and `TRACKER_PASSWORD` authenticate the metadata sync. The API defaults to `https://dsa-estimators-1.onrender.com/api`; an Actions variable named `TRACKER_API_URL` can override it.
+When an accepted result appears, the extension sends the source to your authenticated tracker account. A first capture creates the problem record; a later accepted submission for the same problem updates its source.
 
-Automation commits use `168968951+Tushargg1@users.noreply.github.com` so commits on `main` can be attributed to the `Tushargg1` contribution graph.
+Previously accepted source cannot be reconstructed automatically. Open the old accepted submission on the coding platform and submit it again with the extension enabled if you want that exact code archived.
+
+## Repository automation
+
+Required Actions secrets:
+
+- `TRACKER_EMAIL`
+- `TRACKER_PASSWORD`
+
+The workflow defaults to `https://dsa-estimators-1.onrender.com/api`. Set the `TRACKER_API_URL` repository variable only if that production URL changes.
+
+Automation commits use `168968951+Tushargg1@users.noreply.github.com` for contribution attribution.
