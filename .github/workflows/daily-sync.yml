@@ -1,0 +1,43 @@
+name: Daily solved-problem sync
+
+on:
+  schedule:
+    - cron: "45 18 * * *" # 12:15 AM IST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-solved-problem-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TRACKER_API_URL: ${{ vars.TRACKER_API_URL || 'https://dsa-estimators-1.onrender.com/api' }}
+      TRACKER_EMAIL: ${{ secrets.TRACKER_EMAIL }}
+      TRACKER_PASSWORD: ${{ secrets.TRACKER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Export solved problems
+        run: python scripts/sync_solutions.py
+
+      - name: Commit new solves
+        run: |
+          if git diff --quiet -- solutions; then
+            echo "No new solved problems to commit."
+            exit 0
+          fi
+          git config user.name "Tushar Goel"
+          git config user.email "168968951+Tushargg1@users.noreply.github.com"
+          git add solutions
+          git commit -m "Log daily DSA solutions"
+          git push
