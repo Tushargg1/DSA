@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Export first-time accepted tracker submissions into date-wise Markdown logs."""
+"""Export first-time accepted tracker submissions into topic/problem metadata."""
 
 import json
 import os
 import re
+import shutil
 import sys
 import urllib.error
 import urllib.parse
@@ -76,6 +77,11 @@ def markdown_text(value) -> str:
     return str(value).replace("|", "\\|").replace("\r", " ").replace("\n", " ").strip()
 
 
+def safe_slug(value) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", str(value or "").lower()).strip("-")
+    return slug[:100].rstrip("-") or "uncategorized"
+
+
 def problem_url(submission: dict) -> str:
     platform = (submission.get("platform") or "").upper()
     problem_id = str(submission.get("problemId") or "").strip()
@@ -85,54 +91,100 @@ def problem_url(submission: dict) -> str:
     if platform == "CODEFORCES":
         match = re.fullmatch(r"(\d+)(.+)", problem_id)
         if match:
-            return f"https://codeforces.com/problemset/problem/{match.group(1)}/{urllib.parse.quote(match.group(2), safe='')}"
+            suffix = urllib.parse.quote(match.group(2), safe="")
+            return f"https://codeforces.com/problemset/problem/{match.group(1)}/{suffix}"
     if platform == "GFG":
         return f"https://www.geeksforgeeks.org/problems/{encoded}/1"
     return ""
 
 
-def render_day(day: str, submissions: list[dict]) -> str:
-    title = datetime.strptime(day, "%Y-%m-%d").strftime("%d %B %Y")
+def fetch_catalog(base_url: str, token: str) -> dict:
+    snapshot = request_json(f"{base_url}/catalog", token=token)
+    index = {}
+    for question in snapshot.get("questions", []):
+        slug = safe_slug(question.get("slug"))
+        patterns = question.get("patterns") or question.get("pattern") or []
+        index[slug] = {
+            "topic": safe_slug(patterns[0]) if patterns else "uncategorized",
+            "difficulty": question.get("difficulty"),
+        }
+    return index
+
+
+def infer_topic(submission: dict, catalog: dict) -> tuple[str, str | None]:
+    problem_id = safe_slug(submission.get("problemId"))
+    catalog_entry = catalog.get(problem_id, {})
+    topic = catalog_entry.get("topic")
+    if topic and topic != "uncategorized":
+        return topic, catalog_entry.get("difficulty")
+
+    tags = submission.get("tags") or []
+    if tags:
+        return safe_slug(tags[0]), catalog_entry.get("difficulty")
+
+    title = str(submission.get("problemName") or "").lower()
+    title_topics = (
+        (("linked list", "linked-list"),),
+        (("stack", "stack"),),
+        (("queue", "queue"),),
+        (("tree", "trees"),),
+        (("graph", "graphs"),),
+        (("array", "arrays"),),
+        (("string", "strings"),),
+        (("binary search", "binary-search"),),
+        (("subsequence", "dynamic-programming"),),
+    )
+    for ((keyword, fallback_topic),) in title_topics:
+        if keyword in title:
+            return fallback_topic, catalog_entry.get("difficulty")
+    if "next greater" in title:
+        return "stack", catalog_entry.get("difficulty")
+    return "uncategorized", catalog_entry.get("difficulty")
+
+
+def render_problem(submission: dict, topic: str, catalog_difficulty) -> str:
+    name = markdown_text(submission.get("problemName") or submission.get("problemId") or "Untitled")
+    url = problem_url(submission)
+    platform = markdown_text(submission.get("platform"))
+    difficulty = markdown_text(submission.get("difficulty") or catalog_difficulty)
+    tags = markdown_text(", ".join(submission.get("tags") or []))
+    solved_at = parse_solved_at(submission["solvedAtUtc"]).strftime("%d %B %Y, %I:%M %p IST")
     lines = [
-        f"# DSA Solutions — {title}",
-        "",
-        f"**Problems solved:** {len(submissions)}",
-        "",
-        "| Platform | Problem | Difficulty | Tags | Solved at (IST) |",
-        "|---|---|---|---|---|",
+        f"# {name}", "",
+        f"- **Topic:** {markdown_text(topic.replace('-', ' ').title())}",
+        f"- **Platform:** {platform}",
+        f"- **Difficulty:** {difficulty}",
+        f"- **Tags:** {tags}",
+        f"- **First accepted:** {solved_at}",
     ]
-    for submission in sorted(submissions, key=lambda item: item.get("solvedAtUtc", "")):
-        name = markdown_text(submission.get("problemName") or submission.get("problemId") or "Untitled")
-        url = problem_url(submission)
-        problem = f"[{name}]({url})" if url else name
-        tags = submission.get("tags") or []
-        solved_at = parse_solved_at(submission["solvedAtUtc"]).strftime("%I:%M %p")
-        lines.append(
-            f"| {markdown_text(submission.get('platform'))} | {problem} | "
-            f"{markdown_text(submission.get('difficulty'))} | {markdown_text(', '.join(tags))} | {solved_at} |"
-        )
-    lines.extend(["", "_Generated automatically from accepted submissions recorded by DSA Tracker._", ""])
+    if url:
+        lines.append(f"- **Problem:** [{name}]({url})")
+    lines.extend([
+        "", "## Solution source", "",
+        "> Source code was not present in the tracker submission feed. The DSA Solution Capture browser extension must be configured before an accepted submission to archive code automatically.",
+        "",
+    ])
     return "\n".join(lines)
 
 
-def write_logs(submissions: list[dict]) -> int:
-    grouped = defaultdict(list)
+def write_topics(submissions: list[dict], catalog: dict) -> int:
+    legacy = ROOT / "solutions"
+    if legacy.exists():
+        shutil.rmtree(legacy)
+
+    changed = 0
     seen = set()
-    for submission in submissions:
+    for submission in sorted(submissions, key=lambda item: item.get("solvedAtUtc", "")):
         if not submission.get("isFirstAttempt") or not submission.get("solvedAtUtc"):
             continue
-        key = (
-            submission.get("platform"), submission.get("problemId"), submission.get("solvedAtUtc")
-        )
+        key = (submission.get("platform"), submission.get("problemId"))
         if key in seen:
             continue
         seen.add(key)
-        grouped[parse_solved_at(submission["solvedAtUtc"]).date().isoformat()].append(submission)
-
-    changed = 0
-    for day, day_submissions in grouped.items():
-        destination = ROOT / "solutions" / day[:4] / day[5:7] / f"{day}.md"
-        content = render_day(day, day_submissions)
+        topic, catalog_difficulty = infer_topic(submission, catalog)
+        problem = safe_slug(submission.get("problemId") or submission.get("problemName"))
+        destination = ROOT / "topics" / topic / problem / "README.md"
+        content = render_problem(submission, topic, catalog_difficulty)
         if destination.exists() and destination.read_text(encoding="utf-8") == content:
             continue
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -153,8 +205,9 @@ def main() -> int:
     if not user.get("id") or not token:
         raise RuntimeError("Tracker login response did not include a user and token")
     submissions = fetch_submissions(base_url, user["id"], token)
-    changed = write_logs(submissions)
-    print(f"Processed {len(submissions)} submissions; updated {changed} daily log(s).")
+    catalog = fetch_catalog(base_url, token)
+    changed = write_topics(submissions, catalog)
+    print(f"Processed {len(submissions)} submissions; updated {changed} topic record(s).")
     return 0
 
 
@@ -162,5 +215,5 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except Exception as error:  # concise output; credentials are never printed
-        print(f"Daily sync failed: {error}", file=sys.stderr)
+        print(f"Topic sync failed: {error}", file=sys.stderr)
         sys.exit(1)

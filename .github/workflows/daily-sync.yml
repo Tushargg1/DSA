@@ -1,4 +1,4 @@
-name: Daily solved-problem sync
+name: Topic-wise solved-problem sync
 
 on:
   schedule:
@@ -32,12 +32,13 @@ jobs:
 
       - name: Commit new solves
         run: |
-          git add solutions
+          git add topics
+          git add -A solutions
           if git diff --cached --quiet; then
             echo "No new solved problems to commit."
             exit 0
           fi
           git config user.name "Tushar Goel"
           git config user.email "168968951+Tushargg1@users.noreply.github.com"
-          git commit -m "Log daily DSA solutions"
+          git commit -m "Organize DSA problems by topic"
           git push

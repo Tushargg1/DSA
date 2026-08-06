@@ -1,29 +1,29 @@
-# Daily DSA Solutions
+# DSA Solutions by Topic
 
-This repository keeps a date-wise record of first-time accepted DSA problems tracked by the DSA Tracker application.
+Accepted problems tracked by DSA Evaluator are organized as:
 
-## Automatic daily sync
+```text
+topics/<topic>/<problem>/README.md
+```
 
-The `Daily solved-problem sync` workflow runs every day at **12:15 AM IST** and can also be started manually from the Actions tab. It:
+Each metadata file includes the problem link, platform, difficulty, tags, and first-accepted time. The sync uses the same pattern catalog as DSA Evaluator and runs daily at **12:15 AM IST**.
 
-1. Signs in to DSA Tracker using encrypted repository secrets.
-2. Downloads accepted first-time submissions.
-3. Creates deterministic files under `solutions/YYYY/MM/YYYY-MM-DD.md`.
-4. Commits and pushes only when a newly solved problem changes the log.
+## Source code capture
 
-### Required repository secrets
+LeetCode’s public submission feed does **not** expose private submitted source code. Therefore the scheduled metadata workflow cannot recover code for older submissions.
 
-In **Settings → Secrets and variables → Actions**, add:
+Actual code must be captured in the browser when a submission becomes accepted. DSA Evaluator already includes a Chrome/Edge extension for this, but its GitHub export requires the backend GitHub App configuration shown on the app’s GitHub page. After that setup:
 
-- `TRACKER_EMAIL` — your DSA Tracker login email.
-- `TRACKER_PASSWORD` — your DSA Tracker password.
+1. Connect the `Tushargg1/DSA` repository in DSA Evaluator.
+2. Generate an extension token.
+3. Load the tracker repository’s `extension/` directory using Chrome/Edge **Load unpacked**.
+4. Save the production API URL and extension token in the extension.
+5. Submit on LeetCode; accepted source is captured and exported under its DSA pattern.
 
-The API defaults to `https://dsa-estimators-1.onrender.com/api`. Override it with an Actions repository variable named `TRACKER_API_URL` if the deployment URL changes.
+Never paste a GitHub private key, tracker password, extension token, or browser cookie into this repository.
 
-## GitHub contribution graph
+## Workflow configuration
 
-Automation commits use `168968951+Tushargg1@users.noreply.github.com`, which GitHub associates with `Tushargg1`. A contribution appears only on days with at least one new solved problem and after that commit reaches the default `main` branch. GitHub can take a short time to update the graph.
+The GitHub Actions repository secrets `TRACKER_EMAIL` and `TRACKER_PASSWORD` authenticate the metadata sync. The API defaults to `https://dsa-estimators-1.onrender.com/api`; an Actions variable named `TRACKER_API_URL` can override it.
 
-## What is stored
-
-The logs contain problem metadata—platform, title, difficulty, tags, solve time, and source link. Coding platforms do not expose private submitted source code through these public tracker APIs, so solution code must be added manually if desired.
+Automation commits use `168968951+Tushargg1@users.noreply.github.com` so commits on `main` can be attributed to the `Tushargg1` contribution graph.
