@@ -1,14 +1,14 @@
-# Min Stack
+# Pow(x, n)
 
-- **Topic:** Stack
+- **Topic:** Uncategorized
 - **Platform:** LEETCODE
 - **Difficulty:** Not available
 - **Tags:** Not available
-- **First accepted:** 05 August 2026, 08:02 PM IST
-- **Problem:** [Min Stack](https://leetcode.com/problems/min-stack/)
+- **First accepted:** 23 July 2026, 07:10 PM IST
+- **Problem:** [Pow(x, n)](https://leetcode.com/problems/powx-n/)
 
 ## Solution
 
 > Source has not been captured yet. Submit again with the DSA Solution Capture extension enabled to update this record.
 
-<!-- generated-by-dsa-sync:LEETCODE:min-stack -->
+<!-- generated-by-dsa-sync:LEETCODE:powx-n -->
