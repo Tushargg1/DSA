@@ -2,7 +2,8 @@ name: DSA solution upsert
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # GitHub's minimum schedule interval
+    # Offset from common clock boundaries to reduce GitHub-hosted runner delays.
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -10,12 +11,12 @@ permissions:
 
 concurrency:
   group: daily-solved-problem-sync
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     env:
       TRACKER_API_URL: ${{ vars.TRACKER_API_URL || 'https://dsa-estimators-1.onrender.com/api' }}
       TRACKER_EMAIL: ${{ secrets.TRACKER_EMAIL }}
