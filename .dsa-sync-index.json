@@ -8,6 +8,7 @@
   "LEETCODE:generate-parentheses": "topics/string/generate-parentheses/README.md",
   "LEETCODE:implement-queue-using-stacks": "topics/stack/implement-queue-using-stacks/README.md",
   "LEETCODE:implement-stack-using-queues": "topics/stack/implement-stack-using-queues/README.md",
+  "LEETCODE:largest-rectangle-in-histogram": "topics/uncategorized/largest-rectangle-in-histogram/README.md",
   "LEETCODE:letter-combinations-of-a-phone-number": "topics/hash-table/letter-combinations-of-a-phone-number/README.md",
   "LEETCODE:merge-k-sorted-lists": "topics/linked-list/merge-k-sorted-lists/README.md",
   "LEETCODE:min-stack": "topics/stack/min-stack/README.md",
