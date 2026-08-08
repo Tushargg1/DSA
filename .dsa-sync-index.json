@@ -1,5 +1,6 @@
 {
   "LEETCODE:add-two-numbers": "topics/linked-list/add-two-numbers/README.md",
+  "LEETCODE:asteroid-collision": "topics/uncategorized/asteroid-collision/README.md",
   "LEETCODE:combination-sum": "topics/array/combination-sum/README.md",
   "LEETCODE:combination-sum-ii": "topics/array/combination-sum-ii/README.md",
   "LEETCODE:combination-sum-iii": "topics/array/combination-sum-iii/README.md",
