@@ -51,6 +51,20 @@ def tracker_login(base_url: str):
     )
 
 
+def tracker_context() -> tuple[str, dict, str]:
+    base_url = os.environ.get(
+        "TRACKER_API_URL", "https://dsa-estimators-1.onrender.com/api"
+    ).strip().rstrip("/")
+    if not base_url.startswith("https://"):
+        raise RuntimeError("TRACKER_API_URL must use HTTPS")
+    auth = tracker_login(base_url)
+    user = auth.get("user") or {}
+    token = auth.get("token")
+    if not user.get("id") or not token:
+        raise RuntimeError("Tracker login response did not include a user and token")
+    return base_url, user, token
+
+
 def fetch_submissions(base_url: str, user_id: int, token: str):
     submissions = []
     page = 0
@@ -386,17 +400,45 @@ def write_topics(records: dict[str, dict], catalog: dict) -> tuple[int, int, int
     return created, updated, moved
 
 
+def write_github_output(name: str, value: str) -> None:
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    line = f"{name}={value}\n"
+    if output_path:
+        with open(output_path, "a", encoding="utf-8") as output:
+            output.write(line)
+    else:
+        print(line, end="")
+
+
+def claim_workflow_save() -> int:
+    base_url, _, token = tracker_context()
+    result = request_json(
+        f"{base_url}/github/workflow-save/claim", method="POST", payload={}, token=token
+    )
+    claimed = bool(result.get("claimed"))
+    write_github_output("claimed", str(claimed).lower())
+    write_github_output("request_token", result.get("requestToken") or "")
+    print("Manual save request claimed." if claimed else "No manual save request is queued.")
+    return 0
+
+
+def finish_workflow_save(failed: bool) -> int:
+    base_url, _, token = tracker_context()
+    request_token = require_env("WORKFLOW_SAVE_TOKEN")
+    endpoint = "fail" if failed else "complete"
+    payload = {"requestToken": request_token}
+    if failed:
+        payload["error"] = "Repository workflow failed before completing the save"
+    request_json(
+        f"{base_url}/github/workflow-save/{endpoint}",
+        method="POST", payload=payload, token=token,
+    )
+    print("Manual save request marked failed." if failed else "Manual save completed.")
+    return 0
+
+
 def main() -> int:
-    base_url = os.environ.get(
-        "TRACKER_API_URL", "https://dsa-estimators-1.onrender.com/api"
-    ).strip().rstrip("/")
-    if not base_url.startswith("https://"):
-        raise RuntimeError("TRACKER_API_URL must use HTTPS")
-    auth = tracker_login(base_url)
-    user = auth.get("user") or {}
-    token = auth.get("token")
-    if not user.get("id") or not token:
-        raise RuntimeError("Tracker login response did not include a user and token")
+    base_url, user, token = tracker_context()
     submissions = fetch_submissions(base_url, user["id"], token)
     captures = fetch_captures(base_url, token)
     catalog = fetch_catalog(base_url, token)
@@ -412,7 +454,18 @@ def main() -> int:
 
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        command = sys.argv[1] if len(sys.argv) > 1 else "sync"
+        if command == "sync":
+            code = main()
+        elif command == "claim":
+            code = claim_workflow_save()
+        elif command == "complete":
+            code = finish_workflow_save(False)
+        elif command == "fail":
+            code = finish_workflow_save(True)
+        else:
+            raise RuntimeError(f"Unknown command: {command}")
+        sys.exit(code)
     except Exception as error:  # credentials and source code are never printed
         print(f"Topic sync failed: {error}", file=sys.stderr)
         sys.exit(1)

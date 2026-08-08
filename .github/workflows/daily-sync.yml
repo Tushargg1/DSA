@@ -28,6 +28,10 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Claim manual save request
+        id: manual-save
+        run: python scripts/sync_solutions.py claim
+
       - name: Export solved problems
         run: python scripts/sync_solutions.py
 
@@ -42,3 +46,15 @@ jobs:
           git config user.email "168968951+Tushargg1@users.noreply.github.com"
           git commit -m "Upsert DSA solutions by topic"
           git push
+
+      - name: Report manual save success
+        if: success() && steps.manual-save.outputs.claimed == 'true'
+        env:
+          WORKFLOW_SAVE_TOKEN: ${{ steps.manual-save.outputs.request_token }}
+        run: python scripts/sync_solutions.py complete
+
+      - name: Report manual save failure
+        if: failure() && steps.manual-save.outputs.claimed == 'true'
+        env:
+          WORKFLOW_SAVE_TOKEN: ${{ steps.manual-save.outputs.request_token }}
+        run: python scripts/sync_solutions.py fail
