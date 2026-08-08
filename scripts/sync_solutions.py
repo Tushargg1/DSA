@@ -412,9 +412,17 @@ def write_github_output(name: str, value: str) -> None:
 
 def claim_workflow_save() -> int:
     base_url, _, token = tracker_context()
-    result = request_json(
-        f"{base_url}/github/workflow-save/claim", method="POST", payload={}, token=token
-    )
+    try:
+        result = request_json(
+            f"{base_url}/github/workflow-save/claim", method="POST", payload={}, token=token
+        )
+    except RuntimeError as error:
+        if "HTTP 404:" not in str(error):
+            raise
+        write_github_output("claimed", "false")
+        write_github_output("request_token", "")
+        print("Manual save endpoint is not deployed yet; continuing with the normal sync.")
+        return 0
     claimed = bool(result.get("claimed"))
     write_github_output("claimed", str(claimed).lower())
     write_github_output("request_token", result.get("requestToken") or "")
