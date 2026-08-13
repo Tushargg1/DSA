@@ -24,5 +24,6 @@
   "LEETCODE:subsets-ii": "topics/array/subsets-ii/README.md",
   "LEETCODE:sum-of-subarray-minimums": "topics/arrays/sum-of-subarray-minimums/README.md",
   "LEETCODE:sum-of-subarray-ranges": "topics/arrays/sum-of-subarray-ranges/README.md",
+  "LEETCODE:trapping-rain-water": "topics/array/trapping-rain-water/README.md",
   "LEETCODE:word-search": "topics/array/word-search/README.md"
 }
