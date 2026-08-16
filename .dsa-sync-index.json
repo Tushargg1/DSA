@@ -11,6 +11,7 @@
   "LEETCODE:largest-rectangle-in-histogram": "topics/uncategorized/largest-rectangle-in-histogram/README.md",
   "LEETCODE:letter-combinations-of-a-phone-number": "topics/hash-table/letter-combinations-of-a-phone-number/README.md",
   "LEETCODE:longest-substring-without-repeating-characters": "topics/hash-table/longest-substring-without-repeating-characters/README.md",
+  "LEETCODE:max-consecutive-ones-iii": "topics/uncategorized/max-consecutive-ones-iii/README.md",
   "LEETCODE:maximal-rectangle": "topics/uncategorized/maximal-rectangle/README.md",
   "LEETCODE:merge-k-sorted-lists": "topics/linked-list/merge-k-sorted-lists/README.md",
   "LEETCODE:min-stack": "topics/stack/min-stack/README.md",
