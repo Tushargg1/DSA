@@ -2,7 +2,7 @@ name: DSA solution upsert
 
 on:
   schedule:
-    # Offset from common clock boundaries to reduce GitHub-hosted runner delays.
+    # Dispatcher only: the backend releases work at the two configured IST times.
     - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
   workflow_dispatch:
 
@@ -11,7 +11,7 @@ permissions:
 
 concurrency:
   group: daily-solved-problem-sync
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -28,16 +28,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Claim manual save request
-        id: manual-save
+      - name: Claim due progress push
+        id: progress-push
         run: python scripts/sync_solutions.py claim
 
       - name: Export solved problems
+        if: steps.progress-push.outputs.claimed == 'true'
         run: python scripts/sync_solutions.py
 
       - name: Commit changed solutions
+        if: steps.progress-push.outputs.claimed == 'true'
+        id: commit
         run: |
           git add -A -- .dsa-sync-index.json topics
+          changed_files=$(git diff --cached --name-only | sed '/^$/d' | wc -l | tr -d ' ')
+          echo "changed_files=${changed_files}" >> "$GITHUB_OUTPUT"
           if git diff --cached --quiet; then
             echo "No new or updated solutions to commit."
             exit 0
@@ -46,15 +51,21 @@ jobs:
           git config user.email "168968951+Tushargg1@users.noreply.github.com"
           git commit -m "Upsert DSA solutions by topic"
           git push
+          commit_sha=$(git rev-parse HEAD)
+          echo "commit_sha=${commit_sha}" >> "$GITHUB_OUTPUT"
+          echo "commit_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${commit_sha}" >> "$GITHUB_OUTPUT"
 
-      - name: Report manual save success
-        if: success() && steps.manual-save.outputs.claimed == 'true'
+      - name: Report progress push success
+        if: success() && steps.progress-push.outputs.claimed == 'true'
         env:
-          WORKFLOW_SAVE_TOKEN: ${{ steps.manual-save.outputs.request_token }}
+          WORKFLOW_SAVE_TOKEN: ${{ steps.progress-push.outputs.request_token }}
+          WORKFLOW_COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
+          WORKFLOW_COMMIT_URL: ${{ steps.commit.outputs.commit_url }}
+          WORKFLOW_CHANGED_FILES: ${{ steps.commit.outputs.changed_files }}
         run: python scripts/sync_solutions.py complete
 
-      - name: Report manual save failure
-        if: failure() && steps.manual-save.outputs.claimed == 'true'
+      - name: Report progress push failure
+        if: failure() && steps.progress-push.outputs.claimed == 'true'
         env:
-          WORKFLOW_SAVE_TOKEN: ${{ steps.manual-save.outputs.request_token }}
+          WORKFLOW_SAVE_TOKEN: ${{ steps.progress-push.outputs.request_token }}
         run: python scripts/sync_solutions.py fail

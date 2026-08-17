@@ -437,11 +437,24 @@ def finish_workflow_save(failed: bool) -> int:
     payload = {"requestToken": request_token}
     if failed:
         payload["error"] = "Repository workflow failed before completing the save"
+    else:
+        commit_sha = os.environ.get("WORKFLOW_COMMIT_SHA", "").strip()
+        commit_url = os.environ.get("WORKFLOW_COMMIT_URL", "").strip()
+        changed_files = os.environ.get("WORKFLOW_CHANGED_FILES", "").strip()
+        if commit_sha:
+            payload["commitSha"] = commit_sha
+        if commit_url:
+            payload["commitUrl"] = commit_url
+        if changed_files:
+            try:
+                payload["changedFiles"] = int(changed_files)
+            except ValueError as error:
+                raise RuntimeError("WORKFLOW_CHANGED_FILES must be an integer") from error
     request_json(
         f"{base_url}/github/workflow-save/{endpoint}",
         method="POST", payload=payload, token=token,
     )
-    print("Manual save request marked failed." if failed else "Manual save completed.")
+    print("Manual save request marked failed." if failed else "Progress push completed.")
     return 0
 
 
