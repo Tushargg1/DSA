@@ -1,6 +1,7 @@
 {
   "LEETCODE:add-two-numbers": "topics/linked-list/add-two-numbers/README.md",
   "LEETCODE:asteroid-collision": "topics/uncategorized/asteroid-collision/README.md",
+  "LEETCODE:binary-subarrays-with-sum": "topics/arrays/binary-subarrays-with-sum/README.md",
   "LEETCODE:combination-sum": "topics/array/combination-sum/README.md",
   "LEETCODE:combination-sum-ii": "topics/array/combination-sum-ii/README.md",
   "LEETCODE:combination-sum-iii": "topics/array/combination-sum-iii/README.md",
@@ -10,6 +11,7 @@
   "LEETCODE:implement-stack-using-queues": "topics/stack/implement-stack-using-queues/README.md",
   "LEETCODE:largest-rectangle-in-histogram": "topics/uncategorized/largest-rectangle-in-histogram/README.md",
   "LEETCODE:letter-combinations-of-a-phone-number": "topics/hash-table/letter-combinations-of-a-phone-number/README.md",
+  "LEETCODE:longest-repeating-character-replacement": "topics/hash-table/longest-repeating-character-replacement/README.md",
   "LEETCODE:longest-substring-without-repeating-characters": "topics/hash-table/longest-substring-without-repeating-characters/README.md",
   "LEETCODE:max-consecutive-ones-iii": "topics/uncategorized/max-consecutive-ones-iii/README.md",
   "LEETCODE:maximal-rectangle": "topics/uncategorized/maximal-rectangle/README.md",
