@@ -6,6 +6,7 @@
   "LEETCODE:combination-sum-ii": "topics/array/combination-sum-ii/README.md",
   "LEETCODE:combination-sum-iii": "topics/array/combination-sum-iii/README.md",
   "LEETCODE:count-good-numbers": "topics/uncategorized/count-good-numbers/README.md",
+  "LEETCODE:count-number-of-nice-subarrays": "topics/arrays/count-number-of-nice-subarrays/README.md",
   "LEETCODE:generate-parentheses": "topics/string/generate-parentheses/README.md",
   "LEETCODE:implement-queue-using-stacks": "topics/stack/implement-queue-using-stacks/README.md",
   "LEETCODE:implement-stack-using-queues": "topics/stack/implement-stack-using-queues/README.md",
