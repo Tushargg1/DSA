@@ -20,6 +20,7 @@
   "LEETCODE:min-stack": "topics/stack/min-stack/README.md",
   "LEETCODE:next-greater-element-i": "topics/stack/next-greater-element-i/README.md",
   "LEETCODE:next-greater-element-ii": "topics/stack/next-greater-element-ii/README.md",
+  "LEETCODE:number-of-substrings-containing-all-three-characters": "topics/strings/number-of-substrings-containing-all-three-characters/README.md",
   "LEETCODE:odd-even-linked-list": "topics/linked-list/odd-even-linked-list/README.md",
   "LEETCODE:online-stock-span": "topics/uncategorized/online-stock-span/README.md",
   "LEETCODE:powx-n": "topics/uncategorized/powx-n/README.md",
