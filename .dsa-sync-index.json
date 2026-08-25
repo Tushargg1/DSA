@@ -16,6 +16,7 @@
   "LEETCODE:longest-substring-without-repeating-characters": "topics/hash-table/longest-substring-without-repeating-characters/README.md",
   "LEETCODE:max-consecutive-ones-iii": "topics/uncategorized/max-consecutive-ones-iii/README.md",
   "LEETCODE:maximal-rectangle": "topics/uncategorized/maximal-rectangle/README.md",
+  "LEETCODE:maximum-points-you-can-obtain-from-cards": "topics/uncategorized/maximum-points-you-can-obtain-from-cards/README.md",
   "LEETCODE:merge-k-sorted-lists": "topics/linked-list/merge-k-sorted-lists/README.md",
   "LEETCODE:min-stack": "topics/stack/min-stack/README.md",
   "LEETCODE:next-greater-element-i": "topics/stack/next-greater-element-i/README.md",
