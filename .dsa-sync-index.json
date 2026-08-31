@@ -19,6 +19,7 @@
   "LEETCODE:maximum-points-you-can-obtain-from-cards": "topics/uncategorized/maximum-points-you-can-obtain-from-cards/README.md",
   "LEETCODE:merge-k-sorted-lists": "topics/linked-list/merge-k-sorted-lists/README.md",
   "LEETCODE:min-stack": "topics/stack/min-stack/README.md",
+  "LEETCODE:minimum-window-substring": "topics/hash-table/minimum-window-substring/README.md",
   "LEETCODE:next-greater-element-i": "topics/stack/next-greater-element-i/README.md",
   "LEETCODE:next-greater-element-ii": "topics/stack/next-greater-element-ii/README.md",
   "LEETCODE:number-of-substrings-containing-all-three-characters": "topics/strings/number-of-substrings-containing-all-three-characters/README.md",
