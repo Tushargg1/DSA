@@ -11,6 +11,7 @@
   "LEETCODE:implement-queue-using-stacks": "topics/stack/implement-queue-using-stacks/README.md",
   "LEETCODE:implement-stack-using-queues": "topics/stack/implement-stack-using-queues/README.md",
   "LEETCODE:largest-rectangle-in-histogram": "topics/uncategorized/largest-rectangle-in-histogram/README.md",
+  "LEETCODE:lemonade-change": "topics/uncategorized/lemonade-change/README.md",
   "LEETCODE:letter-combinations-of-a-phone-number": "topics/hash-table/letter-combinations-of-a-phone-number/README.md",
   "LEETCODE:longest-repeating-character-replacement": "topics/hash-table/longest-repeating-character-replacement/README.md",
   "LEETCODE:longest-substring-without-repeating-characters": "topics/hash-table/longest-substring-without-repeating-characters/README.md",
