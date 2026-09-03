@@ -10,6 +10,8 @@
   "LEETCODE:generate-parentheses": "topics/string/generate-parentheses/README.md",
   "LEETCODE:implement-queue-using-stacks": "topics/stack/implement-queue-using-stacks/README.md",
   "LEETCODE:implement-stack-using-queues": "topics/stack/implement-stack-using-queues/README.md",
+  "LEETCODE:jump-game": "topics/array/jump-game/README.md",
+  "LEETCODE:jump-game-ii": "topics/uncategorized/jump-game-ii/README.md",
   "LEETCODE:largest-rectangle-in-histogram": "topics/uncategorized/largest-rectangle-in-histogram/README.md",
   "LEETCODE:lemonade-change": "topics/uncategorized/lemonade-change/README.md",
   "LEETCODE:letter-combinations-of-a-phone-number": "topics/hash-table/letter-combinations-of-a-phone-number/README.md",
